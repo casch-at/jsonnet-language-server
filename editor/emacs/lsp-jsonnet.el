@@ -1,14 +1,15 @@
-;;; jsonnet-language-server -- LSP registration for Emacs lsp-mode.
+;;; lsp-jsonnet.el --- jsonnet-language-server support       -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+
 (require 'jsonnet-mode)
 (require 'lsp-mode)
 
-(defcustom lsp-jsonnet-executable "jsonnet-language-server"
-  "Command to start the Jsonnet language server."
-  :group 'lsp-jsonnet
+(defcustom lsp-jsonnet-server-command '("jsonnet-language-server")
+  "Command to start Jsonnet language server."
   :risky t
-  :type 'file)
+  :group 'lsp-jsonnet
+  :type '(repeat string))
 
 ;; Configure lsp-mode language identifiers.
 (add-to-list 'lsp-language-id-configuration '(jsonnet-mode . "jsonnet"))
@@ -16,7 +17,9 @@
 ;; Register jsonnet-language-server with the LSP client.
 (lsp-register-client
  (make-lsp-client
-  :new-connection (lsp-stdio-connection (lambda () lsp-jsonnet-executable))
+  :new-connection (lsp-stdio-connection
+                   (lambda ()
+                     lsp-jsonnet-server-command))
   :activation-fn (lsp-activate-on "jsonnet")
   :initialized-fn (lambda (workspace)
                     (with-lsp-workspace workspace
@@ -28,5 +31,5 @@
 ;; Start the language server whenever jsonnet-mode is used.
 (add-hook 'jsonnet-mode-hook #'lsp-deferred)
 
-(provide 'jsonnet-language-server)
-;;; jsonnet-language-server.el ends here
+(provide 'lsp-jsonnet)
+;;; lsp-jsonnet.el ends here
